@@ -12,6 +12,17 @@ struct SettingsView: View {
                     Toggle("sunscreen reminders", isOn: $settings.notificationsEnabled)
                         .font(.custom("PatrickHand-Regular", size: 17))
                         .tint(babyBlue)
+
+                    Toggle("remind every 2 hours", isOn: $settings.repeatingReminders)
+                        .font(.custom("PatrickHand-Regular", size: 17))
+                        .tint(babyBlue)
+                        .onChange(of: settings.repeatingReminders) {
+                            if settings.repeatingReminders {
+                                NotificationManager.shared.scheduleRepeatingReminders()
+                            } else {
+                                NotificationManager.shared.cancelRepeatingReminders()
+                            }
+                        }
                 }
 
                 // temperature threshold section

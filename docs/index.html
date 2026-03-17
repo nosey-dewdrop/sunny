@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sunny — iOS weather app</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☀️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+:root {
+  --baby: #aedcf0;
+  --baby-light: #ddf0fa;
+  --baby-bg: #f0f8ff;
+  --sky: #87ceeb;
+  --dark: #1a3a4a;
+  --muted: #4a7a8a;
+  --terminal-bg: #0d2b3e;
+  --terminal-text: #aedcf0;
+  --terminal-prompt: #ffd700;
+  --fm: 'JetBrains Mono', monospace;
+  --fd: 'Patrick Hand', cursive;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--baby-bg); color: var(--dark); font-family: var(--fm); font-size: 13px; font-weight: 300; line-height: 1.6; }
+::selection { background: var(--sky); color: #fff; }
+a { color: var(--muted); transition: opacity .2s; }
+a:hover { opacity: .7; }
+
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  background: linear-gradient(180deg, var(--baby-light) 0%, var(--baby-bg) 100%);
+}
+.hero-logo { width: 120px; height: 120px; border-radius: 28px; margin-bottom: 24px; box-shadow: 0 8px 32px rgba(135,206,235,.3); }
+.hero h1 { font-family: var(--fd); font-size: 48px; font-weight: 400; color: var(--dark); margin-bottom: 8px; }
+.hero p { font-size: 14px; color: var(--muted); max-width: 500px; margin-bottom: 32px; }
+.hero-links { display: flex; gap: 12px; }
+.hero-links a { padding: 10px 20px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 400; }
+.btn-primary { background: var(--sky); color: #fff; border: 1px solid var(--sky); }
+.btn-secondary { background: transparent; color: var(--dark); border: 1px solid var(--baby); }
+
+.container { max-width: 1000px; margin: 0 auto; padding: 60px 20px; }
+
+/* features left + weather showcase right */
+.split-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+  margin-bottom: 60px;
+}
+.split-left {}
+.split-right {}
+
+.features-list { display: flex; flex-direction: column; gap: 14px; }
+.feature {
+  background: white;
+  border: 1px solid var(--baby);
+  border-radius: 8px;
+  padding: 16px 20px;
+  transition: box-shadow .2s;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.feature:hover { box-shadow: 0 4px 16px rgba(135,206,235,.2); }
+.feature-icon { font-size: 22px; flex-shrink: 0; }
+.feature h3 { font-family: var(--fd); font-size: 17px; font-weight: 400; margin-bottom: 2px; }
+.feature p { font-size: 11px; color: var(--muted); }
+
+/* weather showcase — phone mockup carousel */
+.weather-showcase {
+  position: sticky;
+  top: 80px;
+}
+.phone-frame {
+  width: 280px;
+  margin: 0 auto;
+  background: #000;
+  border-radius: 36px;
+  padding: 12px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.15);
+}
+.phone-screen {
+  border-radius: 26px;
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 9/19.5;
+}
+.phone-screen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .8s ease;
+}
+.phone-screen img.active { opacity: 1; }
+.weather-label {
+  font-family: var(--fd);
+  font-size: 18px;
+  text-align: center;
+  margin-top: 16px;
+  color: var(--dark);
+  min-height: 28px;
+}
+.weather-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.weather-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--baby);
+  cursor: pointer;
+  transition: all .2s;
+  border: none;
+}
+.weather-dot.active { background: var(--sky); transform: scale(1.3); }
+
+.terminal {
+  background: var(--terminal-bg);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 40px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.15);
+}
+.terminal-bar {
+  background: #1a3f55;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+.terminal-dot.r { background: #ff5f57; }
+.terminal-dot.y { background: #febc2e; }
+.terminal-dot.g { background: #28c840; }
+.terminal-title { font-size: 11px; color: var(--terminal-text); opacity: .6; margin-left: 8px; }
+.terminal-body { padding: 20px; font-size: 12px; color: var(--terminal-text); line-height: 1.8; }
+.terminal-body .prompt { color: var(--terminal-prompt); }
+.terminal-body .comment { color: #5a8a9a; }
+.terminal-body .cmd { color: #aedcf0; }
+.terminal-body .output { color: #7ab8cc; }
+
+.section-title {
+  font-family: var(--fd);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--dark);
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--baby);
+}
+
+.tech-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 40px;
+}
+.tech-tag {
+  background: var(--terminal-bg);
+  color: var(--terminal-text);
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.story {
+  background: white;
+  border: 1px solid var(--baby);
+  border-radius: 8px;
+  padding: 28px;
+  margin-bottom: 40px;
+  line-height: 1.8;
+}
+.story p { margin-bottom: 12px; }
+.story p:last-child { margin-bottom: 0; }
+
+footer {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 11px;
+  border-top: 1px solid var(--baby);
+}
+
+@media (max-width: 768px) {
+  .split-section { grid-template-columns: 1fr; }
+  .weather-showcase { position: static; }
+  .phone-frame { width: 220px; }
+  .hero h1 { font-size: 36px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <img src="images/logo.png" alt="sunny logo" class="hero-logo">
+  <h1>sunny</h1>
+  <p>a hand-drawn iOS weather app that reminds you to wear sunscreen on hot days</p>
+  <div class="hero-links">
+    <a href="https://github.com/nosey-dewdrop/sunny" class="btn-primary">view on github</a>
+    <a href="#story" class="btn-secondary">read the story</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="split-section">
+    <!-- features left -->
+    <div class="split-left">
+      <h2 class="section-title">features</h2>
+      <div class="features-list">
+        <div class="feature">
+          <div class="feature-icon">🌤</div>
+          <div><h3>real-time weather</h3><p>current conditions based on your GPS location via WeatherAPI</p></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🎨</div>
+          <div><h3>hand-drawn backgrounds</h3><p>8 unique Procreate illustrations that change with the weather</p></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🧴</div>
+          <div><h3>sunscreen reminders</h3><p>push notifications when temperature exceeds your threshold</p></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🔔</div>
+          <div><h3>2-hour repeat</h3><p>optional recurring reminders throughout the day (08:00-20:00)</p></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">✏️</div>
+          <div><h3>doodle typography</h3><p>Patrick Hand font for a handwritten notebook feel</p></div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">✨</div>
+          <div><h3>smooth animations</h3><p>staggered entrance animations and crossfade weather transitions</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- weather showcase right -->
+    <div class="split-right">
+      <h2 class="section-title">weather conditions</h2>
+      <div class="weather-showcase">
+        <div class="phone-frame">
+          <div class="phone-screen" id="phone-screen">
+            <img src="images/blue_sky.png" alt="blue sky" class="active" data-label="blue sky 💙">
+            <img src="images/cloud.png" alt="cloudy" data-label="cloudy ☁️">
+            <img src="images/sunny_cloudy.png" alt="sunny cloudy" data-label="cloudy sunny 🌤">
+            <img src="images/sunny_cloudy_rainy.png" alt="mixed weather" data-label="cloudy sunny rainy 🌦">
+            <img src="images/raining.png" alt="raining" data-label="cloudy rainy 🌧">
+            <img src="images/sunny.png" alt="sunny" data-label="sunny ☀️">
+            <img src="images/kinda_hot.png" alt="kinda hot" data-label="kinda hot 🧴">
+            <img src="images/really_hot.png" alt="really hot" data-label="really hot 🔥">
+          </div>
+        </div>
+        <div class="weather-label" id="weather-label">sunny ☀️</div>
+        <div class="weather-dots" id="weather-dots"></div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="section-title">tech stack</h2>
+  <div class="tech-stack">
+    <span class="tech-tag">SwiftUI</span>
+    <span class="tech-tag">CoreLocation</span>
+    <span class="tech-tag">UserNotifications</span>
+    <span class="tech-tag">WeatherAPI</span>
+    <span class="tech-tag">Patrick Hand Font</span>
+    <span class="tech-tag">Procreate Illustrations</span>
+  </div>
+
+  <h2 class="section-title">quick start</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <span class="terminal-dot r"></span>
+      <span class="terminal-dot y"></span>
+      <span class="terminal-dot g"></span>
+      <span class="terminal-title">sunny — setup</span>
+    </div>
+    <div class="terminal-body">
+      <span class="comment"># clone the repo</span><br>
+      <span class="prompt">$</span> <span class="cmd">git clone https://github.com/nosey-dewdrop/sunny.git</span><br>
+      <span class="prompt">$</span> <span class="cmd">cd sunny/sunny</span><br><br>
+      <span class="comment"># add your WeatherAPI key</span><br>
+      <span class="prompt">$</span> <span class="cmd">cat > sunny/Config/Secrets.swift << 'EOF'</span><br>
+      <span class="output">enum Secrets {</span><br>
+      <span class="output">&nbsp;&nbsp;&nbsp;&nbsp;static let weatherAPIKey = "YOUR_KEY"</span><br>
+      <span class="output">}</span><br>
+      <span class="output">EOF</span><br><br>
+      <span class="comment"># open in xcode and run</span><br>
+      <span class="prompt">$</span> <span class="cmd">open sunny.xcodeproj</span><br>
+      <span class="comment"># select your device or simulator → Cmd+R</span><br>
+    </div>
+  </div>
+
+  <h2 class="section-title" id="story">why i built this</h2>
+  <div class="story">
+    <p>i'm a cancer survivor. sunscreen isn't optional for me — it's survival. but even knowing that, i'd forget to reapply constantly. every weather app tells you the temperature, none of them actually remind you to protect your skin.</p>
+    <p>so i built sunny. it's simple on purpose: open the app, see the weather with a cute illustration, get reminded when it's hot enough to burn. the hand-drawn backgrounds are made in Procreate because i wanted it to feel warm and personal, not clinical.</p>
+    <p>this is my first iOS app. i learned SwiftUI, CoreLocation, and push notifications from scratch to build it. every illustration, every line of code, every design decision came from wanting something that felt like it was made by a human who actually cares whether you get sunburned.</p>
+    <p>— damla</p>
+  </div>
+
+  <h2 class="section-title">project structure</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <span class="terminal-dot r"></span>
+      <span class="terminal-dot y"></span>
+      <span class="terminal-dot g"></span>
+      <span class="terminal-title">sunny — architecture</span>
+    </div>
+    <div class="terminal-body">
+      <span class="output">sunny/</span><br>
+      <span class="output">├── sunnyApp.swift</span> <span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# app entry point</span><br>
+      <span class="output">├── ContentView.swift</span> <span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# tab navigation</span><br>
+      <span class="output">├── Config/</span><br>
+      <span class="output">│&nbsp;&nbsp; └── Secrets.swift</span> <span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# API key (gitignored)</span><br>
+      <span class="output">├── Models/</span><br>
+      <span class="output">│&nbsp;&nbsp; ├── WeatherResponse.swift</span> <span class="comment"># API response models</span><br>
+      <span class="output">│&nbsp;&nbsp; ├── WeatherCondition.swift</span><span class="comment"># weather → asset mapping</span><br>
+      <span class="output">│&nbsp;&nbsp; └── UserSettings.swift</span> <span class="comment">&nbsp;&nbsp;&nbsp;# persisted preferences</span><br>
+      <span class="output">├── Services/</span><br>
+      <span class="output">│&nbsp;&nbsp; ├── WeatherService.swift</span> <span class="comment">&nbsp;# WeatherAPI client</span><br>
+      <span class="output">│&nbsp;&nbsp; ├── LocationManager.swift</span> <span class="comment"># GPS + geocoding</span><br>
+      <span class="output">│&nbsp;&nbsp; └── NotificationManager.swift</span><span class="comment"># push notifications</span><br>
+      <span class="output">├── Views/</span><br>
+      <span class="output">│&nbsp;&nbsp; ├── HomeView.swift</span> <span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# main weather screen</span><br>
+      <span class="output">│&nbsp;&nbsp; └── SettingsView.swift</span> <span class="comment">&nbsp;&nbsp;# preferences screen</span><br>
+      <span class="output">└── Assets.xcassets/</span> <span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# illustrations + app icon</span><br>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  built with care by <a href="https://nosey-dewdrop.github.io">damla su bilge</a> · 2026
+</footer>
+
+<script>
+const screen = document.getElementById('phone-screen');
+const imgs = screen.querySelectorAll('img');
+const label = document.getElementById('weather-label');
+const dotsBox = document.getElementById('weather-dots');
+let current = 0;
+let timer;
+
+// create dots
+imgs.forEach((_, i) => {
+  const dot = document.createElement('button');
+  dot.className = 'weather-dot' + (i === 0 ? ' active' : '');
+  dot.onclick = () => goTo(i);
+  dotsBox.appendChild(dot);
+});
+
+function goTo(i) {
+  imgs[current].classList.remove('active');
+  dotsBox.children[current].classList.remove('active');
+  current = i;
+  imgs[current].classList.add('active');
+  dotsBox.children[current].classList.add('active');
+  label.textContent = imgs[current].dataset.label;
+  resetTimer();
+}
+
+function next() { goTo((current + 1) % imgs.length); }
+function resetTimer() { clearInterval(timer); timer = setInterval(next, 3000); }
+resetTimer();
+</script>
+
+</body>
+</html>

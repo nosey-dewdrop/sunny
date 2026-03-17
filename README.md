@@ -1,25 +1,27 @@
-# sunny
+# sunny ☀️
 
-A weather app for iOS that shows current conditions with illustrated backgrounds and reminds you to wear sunscreen on hot days.
+A hand-drawn iOS weather app that reminds you to wear sunscreen on hot days.
+
+**[View Documentation](https://nosey-dewdrop.github.io/sunny/)**
+
+![sunny screenshot](docs/images/sunny_cloudy.png)
 
 ## Features
 
 - Real-time weather based on your location using WeatherAPI
-- Hand-drawn style background illustrations that change with the weather (sunny, cloudy, rainy, hot, etc.)
+- Hand-drawn Procreate illustrations that change with the weather (8 conditions)
 - Sunscreen reminder notifications when temperature exceeds your threshold
-- Adjustable temperature threshold via settings
+- Recurring 2-hour reminders throughout the day (08:00–20:00)
+- Doodle-style typography (Patrick Hand font)
+- Staggered entrance animations and crossfade transitions
 - Reverse geocoding to display your city name
-- 8 unique weather conditions with custom artwork and messages
-
-## Screenshots
-
-<!-- Add screenshots here -->
+- Baby blue settings screen with adjustable threshold
 
 ## Setup
 
 1. Clone the repo
 2. Get a free API key from [weatherapi.com](https://www.weatherapi.com)
-3. Create `sunny/Config/Secrets.swift` with:
+3. Create `sunny/Config/Secrets.swift`:
    ```swift
    enum Secrets {
        static let weatherAPIKey = "YOUR_API_KEY"
@@ -34,7 +36,13 @@ A weather app for iOS that shows current conditions with illustrated backgrounds
 - SwiftUI
 - CoreLocation
 - UserNotifications
-- WeatherAPI (current weather endpoint)
+- WeatherAPI
+- Patrick Hand (Google Fonts)
+- Procreate (illustrations)
+
+## Why
+
+I'm a cancer survivor. Sunscreen isn't optional for me. Every weather app tells you the temperature — none of them remind you to protect your skin. So I built one that does.
 
 ## License
 
