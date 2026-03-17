@@ -46,7 +46,7 @@ enum WeatherCondition: String, CaseIterable {
 
     static func from(code: Int, tempC: Double) -> WeatherCondition {
         if tempC >= 40 { return .reallyHot }
-        if tempC >= 30 { return .kindaHot }
+        if tempC >= 30 { return .kindaHot } // i might chsnge it later on
 
         switch code {
         case 1000:
