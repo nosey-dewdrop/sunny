@@ -14,7 +14,7 @@ class NotificationManager {
     func sendSunscreenReminder(temp: Double) {
         let content = UNMutableNotificationContent()
         content.title = "sunscreen time! ☀️"
-        content.body = "it's \(Int(temp))° outside — don't forget your sunscreen!"
+        content.body = "it's \(Int(temp))° outside - don't forget your sunscreen!"
         content.sound = .default
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)

@@ -1,0 +1,7 @@
+# Secrets
+**/Secrets.xcconfig
+**/Secrets.swift
+
+# Xcode user data
+xcuserdata/
+*.xcuserstate

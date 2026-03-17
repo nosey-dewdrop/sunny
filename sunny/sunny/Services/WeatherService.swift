@@ -1,7 +1,7 @@
 import Foundation
 
 class WeatherService {
-    private let apiKey = "YOUR_API_KEY_HERE"
+    private let apiKey = Secrets.weatherAPIKey
 
     func fetchWeather(lat: Double, lon: Double) async throws -> WeatherResponse {
         let url = URL(string: "https://api.weatherapi.com/v1/current.json?key=\(apiKey)&q=\(lat),\(lon)")!
