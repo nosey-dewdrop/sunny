@@ -4,6 +4,14 @@ struct ContentView: View {
     // shared settings used by both tabs
     @StateObject private var settings = UserSettings()
 
+    init() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor.white
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+
     var body: some View {
         TabView {
             // main weather screen
@@ -18,5 +26,6 @@ struct ContentView: View {
                     Label("settings", systemImage: "gearshape.fill")
                 }
         }
+        .tint(.black)
     }
 }
