@@ -105,6 +105,69 @@ a:hover { opacity: .7; }
   transition: opacity .8s ease;
 }
 .phone-screen img.active { opacity: 1; }
+
+/* phone UI overlay */
+.phone-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+.phone-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: #1a1a1a;
+  font-family: -apple-system, sans-serif;
+}
+.phone-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  margin-top: -20px;
+}
+.phone-city {
+  font-family: var(--fd);
+  font-size: 20px;
+  color: #1a1a1a;
+  text-shadow: 0 1px 3px rgba(255,255,255,.5);
+  margin-bottom: 8px;
+}
+.phone-temp {
+  font-family: var(--fd);
+  font-size: 64px;
+  color: #1a1a1a;
+  text-shadow: 0 2px 4px rgba(255,255,255,.4);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.phone-msg {
+  font-family: var(--fd);
+  font-size: 13px;
+  color: #1a1a1a;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(255,255,255,.4);
+  padding: 0 10px;
+}
+.phone-tabbar {
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0 12px;
+  font-size: 9px;
+  color: #1a1a1a;
+  font-family: -apple-system, sans-serif;
+}
+.phone-tab { text-align: center; opacity: .6; }
+.phone-tab.active { opacity: 1; }
+.phone-tab span { display: block; font-size: 18px; margin-bottom: 2px; }
 .weather-label {
   font-family: var(--fd);
   font-size: 18px;
@@ -259,14 +322,30 @@ footer {
       <div class="weather-showcase">
         <div class="phone-frame">
           <div class="phone-screen" id="phone-screen">
-            <img src="images/blue_sky.png" alt="blue sky" class="active" data-label="blue sky 💙">
-            <img src="images/cloud.png" alt="cloudy" data-label="cloudy ☁️">
-            <img src="images/sunny_cloudy.png" alt="sunny cloudy" data-label="cloudy sunny 🌤">
-            <img src="images/sunny_cloudy_rainy.png" alt="mixed weather" data-label="cloudy sunny rainy 🌦">
-            <img src="images/raining.png" alt="raining" data-label="cloudy rainy 🌧">
-            <img src="images/sunny.png" alt="sunny" data-label="sunny ☀️">
-            <img src="images/kinda_hot.png" alt="kinda hot" data-label="kinda hot 🧴">
-            <img src="images/really_hot.png" alt="really hot" data-label="really hot 🔥">
+            <img src="images/blue_sky.png" alt="blue sky" class="active" data-label="blue sky 💙" data-city="Ankara" data-temp="18" data-msg="blue blue sky! 💙">
+            <img src="images/cloud.png" alt="cloudy" data-label="cloudy ☁️" data-city="London" data-temp="12" data-msg="cloudy but don't skip sunscreen ☁️">
+            <img src="images/sunny_cloudy.png" alt="sunny cloudy" data-label="cloudy sunny 🌤" data-city="Istanbul" data-temp="15" data-msg="peekaboo sun today 🌤">
+            <img src="images/sunny_cloudy_rainy.png" alt="mixed weather" data-label="cloudy sunny rainy 🌦" data-city="Tokyo" data-temp="14" data-msg="grab both umbrella and sunscreen 🌦">
+            <img src="images/raining.png" alt="raining" data-label="cloudy rainy 🌧" data-city="Seoul" data-temp="9" data-msg="rainy day, sunscreen can take a break 🌧">
+            <img src="images/sunny.png" alt="sunny" data-label="sunny ☀️" data-city="Barcelona" data-temp="24" data-msg="what a beautiful day! don't forget spf! 🌞">
+            <img src="images/kinda_hot.png" alt="kinda hot" data-label="kinda hot 🧴" data-city="Dubai" data-temp="34" data-msg="a little hot! don't forget spf! 🧴">
+            <img src="images/really_hot.png" alt="really hot" data-label="really hot 🔥" data-city="Phoenix" data-temp="42" data-msg="really HOT!! SPF is a must! 🔥">
+            <!-- phone UI overlay -->
+            <div class="phone-overlay">
+              <div class="phone-status">
+                <span id="phone-time">17:14</span>
+                <span>●●●● WiFi 🔋</span>
+              </div>
+              <div class="phone-content">
+                <div class="phone-city" id="phone-city">Ankara</div>
+                <div class="phone-temp" id="phone-temp">18°</div>
+                <div class="phone-msg" id="phone-msg">blue blue sky! 💙</div>
+              </div>
+              <div class="phone-tabbar">
+                <div class="phone-tab active"><span>☀️</span>home</div>
+                <div class="phone-tab"><span>⚙️</span>settings</div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="weather-label" id="weather-label">sunny ☀️</div>
@@ -368,6 +447,19 @@ imgs.forEach((_, i) => {
   dotsBox.appendChild(dot);
 });
 
+const city = document.getElementById('phone-city');
+const temp = document.getElementById('phone-temp');
+const msg = document.getElementById('phone-msg');
+const time = document.getElementById('phone-time');
+
+// update clock
+function updateTime() {
+  const now = new Date();
+  time.textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+}
+updateTime();
+setInterval(updateTime, 60000);
+
 function goTo(i) {
   imgs[current].classList.remove('active');
   dotsBox.children[current].classList.remove('active');
@@ -375,6 +467,9 @@ function goTo(i) {
   imgs[current].classList.add('active');
   dotsBox.children[current].classList.add('active');
   label.textContent = imgs[current].dataset.label;
+  city.textContent = imgs[current].dataset.city;
+  temp.textContent = imgs[current].dataset.temp + '°';
+  msg.textContent = imgs[current].dataset.msg;
   resetTimer();
 }
 
