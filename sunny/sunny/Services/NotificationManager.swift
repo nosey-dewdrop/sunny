@@ -1,14 +1,29 @@
 import UserNotifications
 
-class NotificationManager {
+class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationManager()
+
+    override init() {
+        super.init()
+        UNUserNotificationCenter.current().delegate = self
+    }
 
     func requestPermission() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error {
                 print("Notification permission error: \(error.localizedDescription)")
             }
+            print("Notification permission granted: \(granted)")
         }
+    }
+
+    // show notifications even when app is in foreground
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound, .badge])
     }
 
     func sendSunscreenReminder(temp: Double) {
@@ -23,15 +38,16 @@ class NotificationManager {
         UNUserNotificationCenter.current().add(request)
     }
 
-    // schedules repeating reminders every 2 hours between 08:00-20:00
-    func scheduleRepeatingReminders() {
+    // schedules repeating reminders between 08:00-20:00 at given interval
+    func scheduleRepeatingReminders(everyHours interval: Int = 2) {
         let center = UNUserNotificationCenter.current()
 
-        // remove old repeating reminders first
-        let ids = (8...18).filter { $0 % 2 == 0 }.map { "sunscreen-repeat-\($0)" }
-        center.removePendingNotificationRequests(withIdentifiers: ids)
+        // remove all old reminders first
+        let allIds = (8...20).map { "sunscreen-repeat-\($0)" }
+        center.removePendingNotificationRequests(withIdentifiers: allIds)
 
-        for hour in stride(from: 8, through: 18, by: 2) {
+        var hour = 8
+        while hour <= 20 {
             let content = UNMutableNotificationContent()
             content.title = "sunscreen check! ☀️"
             content.body = "hey! have you reapplied your sunscreen? 🧴"
@@ -49,12 +65,13 @@ class NotificationManager {
             )
 
             center.add(request)
+            hour += interval
         }
     }
 
     // cancels all repeating reminders
     func cancelRepeatingReminders() {
-        let ids = (8...18).filter { $0 % 2 == 0 }.map { "sunscreen-repeat-\($0)" }
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)
+        let allIds = (8...20).map { "sunscreen-repeat-\($0)" }
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: allIds)
     }
 }

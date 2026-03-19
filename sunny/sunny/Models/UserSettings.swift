@@ -4,4 +4,5 @@ class UserSettings: ObservableObject {
     @AppStorage("temperatureThreshold") var temperatureThreshold: Double = 30.0
     @AppStorage("notificationsEnabled") var notificationsEnabled: Bool = true
     @AppStorage("repeatingReminders") var repeatingReminders: Bool = false
+    @AppStorage("reminderInterval") var reminderInterval: Double = 2.0
 }

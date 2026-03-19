@@ -13,16 +13,28 @@ struct SettingsView: View {
                         .font(.custom("PatrickHand-Regular", size: 17))
                         .tint(babyBlue)
 
-                    Toggle("remind every 2 hours", isOn: $settings.repeatingReminders)
+                    Toggle("repeating reminders", isOn: $settings.repeatingReminders)
                         .font(.custom("PatrickHand-Regular", size: 17))
                         .tint(babyBlue)
                         .onChange(of: settings.repeatingReminders) {
                             if settings.repeatingReminders {
-                                NotificationManager.shared.scheduleRepeatingReminders()
+                                NotificationManager.shared.scheduleRepeatingReminders(everyHours: Int(settings.reminderInterval))
                             } else {
                                 NotificationManager.shared.cancelRepeatingReminders()
                             }
                         }
+
+                    if settings.repeatingReminders {
+                        VStack(alignment: .leading) {
+                            Text("every \(Int(settings.reminderInterval)) hours")
+                                .font(.custom("PatrickHand-Regular", size: 17))
+                            Slider(value: $settings.reminderInterval, in: 1...6, step: 1)
+                                .tint(babyBlue)
+                                .onChange(of: settings.reminderInterval) {
+                                    NotificationManager.shared.scheduleRepeatingReminders(everyHours: Int(settings.reminderInterval))
+                                }
+                        }
+                    }
                 }
 
                 // temperature threshold section
