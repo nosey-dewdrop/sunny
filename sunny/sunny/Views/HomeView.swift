@@ -53,6 +53,19 @@ struct HomeView: View {
                 Spacer()
                 Spacer()
 
+                if locationManager.denied {
+                    VStack(spacing: 16) {
+                        Text("location needed")
+                            .font(.custom("PatrickHand-Regular", size: 24))
+                            .foregroundStyle(.black)
+                        Text("sunny needs your location to show weather.\nplease enable it in Settings > Privacy > Location Services")
+                            .font(.custom("PatrickHand-Regular", size: 16))
+                            .foregroundStyle(.black.opacity(0.7))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                    }
+                }
+
                 // city name from reverse geocoding — slides down + fades in
                 Text(locationManager.cityName)
                     .font(.custom("PatrickHand-Regular", size: 26))

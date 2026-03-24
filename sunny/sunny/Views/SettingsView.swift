@@ -3,7 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var settings: UserSettings
 
-    private let babyBlue = Color(red: 0.68, green: 0.85, blue: 0.96)
+    private let accentBlue = Color.blue.opacity(0.6)
 
     var body: some View {
         NavigationView {
@@ -11,11 +11,11 @@ struct SettingsView: View {
                 Section("notifications") {
                     Toggle("sunscreen reminders", isOn: $settings.notificationsEnabled)
                         .font(.custom("PatrickHand-Regular", size: 17))
-                        .tint(babyBlue)
+                        .tint(accentBlue)
 
                     Toggle("repeating reminders", isOn: $settings.repeatingReminders)
                         .font(.custom("PatrickHand-Regular", size: 17))
-                        .tint(babyBlue)
+                        .tint(accentBlue)
                         .onChange(of: settings.repeatingReminders) {
                             if settings.repeatingReminders {
                                 NotificationManager.shared.scheduleRepeatingReminders(everyHours: Int(settings.reminderInterval))
@@ -29,7 +29,7 @@ struct SettingsView: View {
                             Text("every \(Int(settings.reminderInterval)) hours")
                                 .font(.custom("PatrickHand-Regular", size: 17))
                             Slider(value: $settings.reminderInterval, in: 1...6, step: 1)
-                                .tint(babyBlue)
+                                .tint(accentBlue)
                                 .onChange(of: settings.reminderInterval) {
                                     NotificationManager.shared.scheduleRepeatingReminders(everyHours: Int(settings.reminderInterval))
                                 }
@@ -44,7 +44,7 @@ struct SettingsView: View {
                         Text("remind me above \(Int(settings.temperatureThreshold))°c")
                             .font(.custom("PatrickHand-Regular", size: 17))
                         Slider(value: $settings.temperatureThreshold, in: 20...45, step: 1)
-                            .tint(babyBlue)
+                            .tint(accentBlue)
                     }
                 }
 
@@ -56,9 +56,9 @@ struct SettingsView: View {
                 }
             }
             .scrollContentBackground(.hidden)
-            .background(babyBlue.opacity(0.15))
+            .background(accentBlue.opacity(0.1))
             .navigationTitle("settings")
         }
-        .tint(babyBlue)
+        .tint(accentBlue)
     }
 }
