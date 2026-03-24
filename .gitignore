@@ -5,3 +5,11 @@
 # Xcode user data
 xcuserdata/
 *.xcuserstate
+
+# OS files
+.DS_Store
+**/.DS_Store
+
+# Claude
+.claude/
+CLAUDE.md

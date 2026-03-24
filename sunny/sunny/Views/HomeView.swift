@@ -1,4 +1,7 @@
 import SwiftUI
+import os
+
+private let logger = Logger(subsystem: "com.damla.sunny", category: "HomeView")
 
 struct HomeView: View {
 
@@ -13,6 +16,8 @@ struct HomeView: View {
     @State private var condition: WeatherCondition = .blueSky
     // shows spinner while waiting for api
     @State private var isLoading = true
+    // error message shown to user
+    @State private var errorMessage: String?
 
     // entrance animation states
     @State private var showCity = false
@@ -73,6 +78,21 @@ struct HomeView: View {
                 } else if isLoading {
                     ProgressView()
                         .tint(.black)
+                } else if let errorMessage = errorMessage {
+                    VStack(spacing: 12) {
+                        Text(errorMessage)
+                            .font(.custom("PatrickHand-Regular", size: 18))
+                            .foregroundStyle(.black)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                        Button("try again") {
+                            self.errorMessage = nil
+                            self.isLoading = true
+                            fetchWeather()
+                        }
+                        .font(.custom("PatrickHand-Regular", size: 16))
+                        .foregroundStyle(.black)
+                    }
                 }
 
                 // cute message based on weather — fades in last
@@ -144,8 +164,11 @@ struct HomeView: View {
                     NotificationManager.shared.sendSunscreenReminder(temp: response.current.tempC)
                 }
             } catch {
-                print("weather fetch error: \(error.localizedDescription)")
-                isLoading = false
+                logger.error("Weather fetch failed: \(error.localizedDescription)")
+                await MainActor.run {
+                    errorMessage = "couldn't load weather. check your connection and try again."
+                    isLoading = false
+                }
             }
         }
     }

@@ -9,15 +9,21 @@ struct FrameAnimationView: View {
     var fps: Double = 0.12
 
     @State private var currentFrame = 0
+    @State private var timer: Timer?
 
     var body: some View {
         Image("\(prefix)_\(currentFrame)")
             .resizable()
             .scaledToFit()
             .onAppear {
-                Timer.scheduledTimer(withTimeInterval: fps, repeats: true) { _ in
+                timer?.invalidate()
+                timer = Timer.scheduledTimer(withTimeInterval: fps, repeats: true) { _ in
                     currentFrame = (currentFrame + 1) % frameCount
                 }
+            }
+            .onDisappear {
+                timer?.invalidate()
+                timer = nil
             }
     }
 }

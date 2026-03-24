@@ -1,4 +1,7 @@
 import CoreLocation
+import os
+
+private let logger = Logger(subsystem: "com.damla.sunny", category: "LocationManager")
 
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let manager = CLLocationManager()
@@ -25,17 +28,25 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         longitude = location.coordinate.longitude
 
         let geocoder = CLGeocoder()
-        geocoder.reverseGeocodeLocation(location) { placemarks, _ in
+        geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
+            if let error = error {
+                logger.error("Reverse geocoding failed: \(error.localizedDescription)")
+            }
             if let city = placemarks?.first?.locality {
                 DispatchQueue.main.async {
-                    self.cityName = city
+                    self?.cityName = city
+                }
+            } else if error != nil {
+                // fallback to coordinates if geocoding fails
+                DispatchQueue.main.async {
+                    self?.cityName = String(format: "%.1f, %.1f", location.coordinate.latitude, location.coordinate.longitude)
                 }
             }
         }
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Location error: \(error.localizedDescription)")
+        logger.error("Location error: \(error.localizedDescription)")
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {

@@ -1,4 +1,7 @@
 import UserNotifications
+import os
+
+private let logger = Logger(subsystem: "com.damla.sunny", category: "NotificationManager")
 
 class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationManager()
@@ -11,9 +14,9 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     func requestPermission() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if let error = error {
-                print("Notification permission error: \(error.localizedDescription)")
+                logger.error("Notification permission error: \(error.localizedDescription)")
             }
-            print("Notification permission granted: \(granted)")
+            logger.info("Notification permission granted: \(granted)")
         }
     }
 
@@ -27,6 +30,12 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     }
 
     func sendSunscreenReminder(temp: Double) {
+        // validate temperature is within reasonable range
+        guard temp.isFinite, temp > -100, temp < 70 else {
+            logger.warning("Invalid temperature value: \(temp), skipping notification")
+            return
+        }
+
         let content = UNMutableNotificationContent()
         content.title = "sunscreen time! ☀️"
         content.body = "it's \(Int(temp))° outside - don't forget your sunscreen!"
